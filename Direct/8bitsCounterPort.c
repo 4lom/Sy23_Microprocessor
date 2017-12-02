@@ -2,6 +2,8 @@
 #include <legacymsp430.h>
 // msp430g2553
 
+void write_on_PORTA(char value);
+
 void delay(unsigned int n)
 {
 	unsigned int i;
@@ -24,11 +26,16 @@ int main(void)
 	while(1)
 	{
 		counter++;
-		P1OUT = counter;
-		P2OUT = counter; 
+		write_on_PORTA(counter);
 		delay(60000);
 		
 		
 	}
 	return 0;
+}
+
+void write_on_PORTA(char value)
+{
+	P1OUT = (P1OUT & 0x0F) | (value & 0xF0);
+	P2OUT = (P2OUT & 0xF0) | (value & 0x0F); 
 }

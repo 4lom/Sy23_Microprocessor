@@ -2,12 +2,13 @@
 #include <legacymsp430.h>
 // msp430g2553
 
+void write_on_PORTA(char value);
+
 char counter = 0;
 
 interrupt(TIMER0_A0_VECTOR) time_out(void) {
 	counter++;
-	P1OUT = counter;
-	P2OUT = counter; 
+	write_on_PORTA(counter);
 }
 
 int main(void)
@@ -30,4 +31,10 @@ int main(void)
 	
 	while(1);
 	return 0;
+}
+
+void write_on_PORTA(char value)
+{
+	P1OUT = (P1OUT & 0x0F) | (value & 0xF0);
+	P2OUT = (P2OUT & 0xF0) | (value & 0x0F); 
 }

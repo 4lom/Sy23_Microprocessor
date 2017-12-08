@@ -48,7 +48,6 @@ char to_segments(int value)
 
 interrupt(TIMER0_A0_VECTOR) time_out(void) 
 {
-
 	write_on_PORTA(to_segments(read_on_PORTB()));	
 }
 
@@ -56,7 +55,7 @@ int main(void)
 {
 	WDTCTL = WDTPW + WDTHOLD;
 	BCSCTL1 = CALBC1_1MHZ;
-	BCSCTL2 |= DIVS_3;
+	BCSCTL2 |= DIVS_1;
 	P1DIR |= 0b11110110;
 	P1OUT = 0x00;
 	P2DIR |= 0b11001111;
@@ -80,9 +79,8 @@ void write_on_PORTA(char value)
 
 char read_on_PORTB()
 {
-
-	char connard=0;
-	connard= ((P2IN & 0b00110000) >> 2); 
-	connard |= ((P1IN &0b00001000) >> 2) | (P1IN &0b00000001);
-	return connard;
+	char c=0;
+	c = ((P2IN & 0b00110000) >> 2); 
+	c |= ((P1IN &0b00001000) >> 2) | (P1IN &0b00000001);
+	return c;
 }

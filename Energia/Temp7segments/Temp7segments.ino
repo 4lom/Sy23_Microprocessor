@@ -10,7 +10,7 @@ volatile unsigned char valeur;
 
 void setup() {
   valeur = inters.readport() | 0xa0;
-  leds.writeport(valeur);  
+  leds.writetosegment(valeur);  
 }
 
 void loop() {
@@ -19,6 +19,6 @@ void loop() {
    //leds ^= 0x0f;
    valeur = leds.readport();
    valeur ^= 0xff;
-   leds.writeport(valeur);    
+   leds.writetosegment(valeur);    
 }
 

@@ -19,6 +19,7 @@ class Port {
     Port operator|=(const unsigned char);
     Port operator&=(const unsigned char);
     Port operator^=(const unsigned char);
+    void writetosegment(unsigned char );
 };
 #endif
 

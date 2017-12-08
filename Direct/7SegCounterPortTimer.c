@@ -5,7 +5,6 @@
 
 void write_on_PORTA(char value);
 char read_on_PORTB();
-uint16_t read_ADC();
 uint16_t convert_temperature(uint16_t);
 
 
@@ -18,8 +17,6 @@ char ten_counter	= 0;
 
 
 volatile uint16_t temp;
-char unit_temp 		= 0;
-char ten_temp 		= 0;
 
 //Boolean which save if the double 7 segments display show the unit(1) value or the tenth(0)
 int unit_show 			= 1;
@@ -63,7 +60,10 @@ char to_segments(char value)
 	}
 }
 
-interrupt(TIMER0_A0_VECTOR) time_out(void) {
+interrupt(TIMER0_A1_VECTOR) time_out(void) {
+
+	char unit_to_show = 0;
+	char ten_to_show  = 0;
 	if((read_on_PORTB() & 0x01) == 0)
 	{
 		if(frequencedivider == 1024)
@@ -90,35 +90,24 @@ interrupt(TIMER0_A0_VECTOR) time_out(void) {
 		{
 			frequencedivider++;
 		}
-		if(unit_show == 0)
-		{
-			write_on_PORTA(to_segments(ten_counter) | 0b00001000);
-			unit_show = 1;
-		}
-		else
-		{
-			write_on_PORTA(to_segments(unite_counter));
-			unit_show = 0;
-		}
+		unit_to_show = unite_counter;
+		ten_to_show  = ten_counter;
 	}
 	else
 	{
-		//uint16_t temp = read_ADC();
-		write_on_PORTA(temp);
-		unit_temp = (char) (temp%10);
-		ten_temp = (char) (temp/10);
-		if(unit_show == 0)
-		{
-			//write_on_PORTA(ten_temp);
-			//write_on_PORTA(to_segments(ten_temp) | 0b00001000);
-			unit_show = 1;
-		}
-		else
-		{
-			//write_on_PORTA(unit_temp);
-			//write_on_PORTA(to_segments(unit_temp));
-			unit_show = 0;
-		}
+		uint16_t temperature = convert_temperature(temp);
+		unit_to_show = (temperature%10);
+		ten_to_show  = (char)(((uint32_t)temperature*(uint32_t)0xCCCD) >> 16) >> 3;
+	}
+	if(unit_show == 0)
+	{
+		write_on_PORTA(to_segments(ten_to_show) | 0b00001000);
+		unit_show = 1;
+	}
+	else
+	{
+		write_on_PORTA(to_segments(unit_to_show));
+		unit_show = 0;
 	}
 }
 
@@ -130,13 +119,14 @@ int main(void)
 	DCOCTL = CALDCO_1MHZ;
 	// division de frequence par 1
 	BCSCTL2 |= DIVS_1;
-	P1DIR |= (BIT7 | BIT6 | BIT5 | BIT4 | ~BIT3 | BIT2 | BIT1 | ~BIT0);//0b11110110;
+	P1DIR |= 0b11110110;
 	P1OUT = 0x00;
 	P2DIR |= 0b11001111;
 	P2OUT = 0x0F;	
 	
 	// interruption sur valeur CCR0
 	CCTL0 = CCIE | OUTMOD_4; // OUT0 for ADC10
+	CCTL1 = CCIE;
 
 	//ADC
 	ADC10CTL0 = SREF_1 | ADC10SHT_3 | REFON | ADC10ON | ADC10IE;
@@ -144,14 +134,9 @@ int main(void)
 	ADC10CTL0 |= ENC ;
 	
 	//timer
-	CCR0 = 512;
+	CCR0 = 10000;
+	CCR1 = 512;
 	TACTL = TASSEL_2 | MC_1 | TACLR;
-	
-	//ADC
-/*
-	ADC10CTL0 = ADC10ON + ADC10SHT1 + ADC10IE;
-	ADC10CTL1 = INCH_10;// + CONSEQ_1;
-*/
 		
 	eint();
 	
@@ -178,19 +163,13 @@ char read_on_PORTB()
 
 uint16_t convert_temperature(uint16_t temp)
 {
-	return ((temp*420)/1024);//-278; //read the 9 bits value of the ADC.
+	return (char) (((temp*420)/1024)-278); //Convert ADC temperature on Celsius and cast it on 8 bits.
+}
+
+interrupt(ADC10_VECTOR) ADC_out(void) {
 }
 
 //Read ADC temperature value
-interrupt(ADC10_VECTOR) ADC_out(void) {
-	//write_on_PORTA(read_ADC() & 0x03FF);
-	//write_on_PORTA(0xFF);
+interrupt(TIMER0_A0_VECTOR) Timer_A0(void) {
 	temp = ADC10MEM;
-}
-
-uint16_t read_ADC()
-{
-	write_on_PORTA(ADC10MEM);
-	return ADC10MEM;
-	//return convert_temperature(ADC10MEM); //read the 9 bits value of the ADC.
 }

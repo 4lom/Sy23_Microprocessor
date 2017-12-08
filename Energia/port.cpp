@@ -21,11 +21,19 @@ void Port::setdir(unsigned char dir) {
   }
 }
 
-void Port::writeport(unsigned char v) {
+unsigned char Port::readport() {
   unsigned char pinvalue, portvalue = 0;
   for(int i = 0; i < nbits; i++) {
     pinvalue = digitalRead(bitsport[i]);
     portvalue |= (pinvalue & 1) << i;
   }
   return portvalue;
+}
+
+void Port::writeport(unsigned char v) {
+  unsigned char pinvalue;
+  for(int i = 0; i < nbits; i++) {
+    pinvalue = (v >> i) & 1;
+    digitalWrite(bitsport[i], pinvalue);
+  }
 }

@@ -61,31 +61,3 @@ Port Port::operator ^=(const unsigned char mask) {
         writeport(v); 
 	return *this;
 }
-
-
-void Port::writetosegment(unsigned char c) {
-  unsigned char seg;
-  switch(c) {
-    case 1:
-      seg = 0b01100000;
-    case 2:
-      seg = 0b10110101;
-    case 3:
-      seg = 0b11110100;
-    case 4:
-      seg = 0b01100110;
-    case 5:
-      seg =  0b11010110;
-    case 6:
-      seg = 0b110110111;
-    case 7:
-      seg =  0b01110000;
-    case 8: 
-      seg = 0b11110111;
-    case 9:
-      seg = 0b11110110;
-    default:
-      seg = 0b11110011;
-  }
-  this->writeport(seg);
-}

@@ -4,8 +4,10 @@
 
 void write_on_PORTA(char value);
 
+// 8 bits counter
 char counter = 0;
 
+// Increment the counter each time out of Timer A0
 interrupt(TIMER0_A0_VECTOR) time_out(void) {
 	counter++;
 	write_on_PORTA(counter);
@@ -33,6 +35,7 @@ int main(void)
 	return 0;
 }
 
+// Function to simplify the assignment of values on port A
 void write_on_PORTA(char value)
 {
 	P1OUT = (P1OUT & 0x0F) | (value & 0xF0);

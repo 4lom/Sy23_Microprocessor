@@ -8,7 +8,6 @@ void delay(unsigned int n)
 {
 	unsigned int i;
 	for(i = 0; i < n; i++);
-	
 }
 
 int main(void)
@@ -21,6 +20,7 @@ int main(void)
 	P2DIR |= 0xF;
 	P2OUT = 0x0;
 	
+	// 8 bits counter
 	char counter = 0;
 	
 	while(1)
@@ -34,6 +34,7 @@ int main(void)
 	return 0;
 }
 
+// Function to simplify the assignment of values on port A
 void write_on_PORTA(char value)
 {
 	P1OUT = (P1OUT & 0x0F) | (value & 0xF0);

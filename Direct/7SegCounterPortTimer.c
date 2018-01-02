@@ -64,6 +64,7 @@ interrupt(TIMER0_A1_VECTOR) time_out(void) {
 
 	char unit_to_show = 0;
 	char ten_to_show  = 0;
+	//If the switch is on mode counter
 	if((read_on_PORTB() & 0x01) == 0)
 	{
 		if(frequencedivider == 1024)
@@ -93,12 +94,15 @@ interrupt(TIMER0_A1_VECTOR) time_out(void) {
 		unit_to_show = unite_counter;
 		ten_to_show  = ten_counter;
 	}
+	//If the switch is on mode temperature
 	else
 	{
 		uint16_t temperature = convert_temperature(temp);
 		unit_to_show = (temperature%10);
 		ten_to_show  = (char)(((uint32_t)temperature*(uint32_t)0xCCCD) >> 16) >> 3;
 	}
+	
+	// Alternance of tenth and unit
 	if(unit_show == 0)
 	{
 		write_on_PORTA(to_segments(ten_to_show) | 0b00001000);
@@ -158,12 +162,13 @@ char read_on_PORTB()
 	c = ((P2IN & 0b00110000) >> 2); 
 	c |= ((P1IN &0b00001000) >> 2) | (P1IN &0b00000001);
 	return c;
-	//Format the 4 bits readed to have a 8 bits sequence like "0000XXXX" (X are the bits readed) 
+	//Format the 4 bits read to have a 8 bits sequence like "0000XXXX" (X are the bits read) 
 }
 
+//Convert ADC temperature on Celsius and cast it on 8 bits.
 uint16_t convert_temperature(uint16_t temp)
 {
-	return (char) (((temp*420)/1024)-278); //Convert ADC temperature on Celsius and cast it on 8 bits.
+	return (char) (((temp*420)/1024)-278); 
 }
 
 interrupt(ADC10_VECTOR) ADC_out(void) {

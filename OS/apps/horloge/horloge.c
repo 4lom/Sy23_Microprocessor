@@ -70,6 +70,7 @@ PROCESS_THREAD(horloge_process, ev, data)
 	}
 	else if((flags & 0x2) == 0x2) //Search the reset flag value
 	{
+		//reset counter
 		is_lock = 1;
 		unit_counter = 0;
 		ten_counter = 0;
@@ -79,12 +80,15 @@ PROCESS_THREAD(horloge_process, ev, data)
 		is_lock = 0;
 	}
 	
+	//If the clock is not locked
 	if(is_lock == 0)
 	{
+		//Each 50 loop the counter is incremented
 		if(div_clock == 50)
 		{
 			if(unit_counter >= 9)
 			{
+				//Increment to 59 max (1 to 59 + 0 = 60)
 				if(ten_counter >= 5)
 				{
 					ten_counter = 0;
@@ -107,6 +111,7 @@ PROCESS_THREAD(horloge_process, ev, data)
 		}
 	}	
 	
+	//Alternate the digit displayed
 	if(unit_show == 0)
 	{
 		writeport(PORTA,to_segments(ten_counter) | 0b00001000);

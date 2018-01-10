@@ -19,7 +19,9 @@ class Port {
     Port operator|=(const unsigned char);
     Port operator&=(const unsigned char);
     Port operator^=(const unsigned char);
-    void writetosegment(unsigned char );
+    void writetosegment(unsigned char , bool is_unit);
+    char to_segments(char value);
+
 };
 #endif
 

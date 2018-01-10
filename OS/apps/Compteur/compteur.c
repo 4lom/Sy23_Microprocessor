@@ -4,9 +4,9 @@
  
 /**
  * \file
- *         interface 8 bits et 4 bits digilent
+ *         Compteur 8 bits
  * \author
- *         Michel Doussot <michel.doussot@utt.fr>
+ *         Louis Zeissloff 
  */ 
 
 
@@ -24,12 +24,16 @@ unsigned char value = 0;
 PROCESS_THREAD(compteur_process, ev, data)
 {
   PROCESS_BEGIN();
+  //Set direction of port A and B
   setdirport(PORTA,PA0|PA1|PA2|PA3|PA4|PA5|PA6|PA7);
   setdirport(PORTB,0);
+  //set 0 to port A 
   writeport(PORTA,0);  
   while(1) 
   {
+	//set the counter value to port A
 	writeport(PORTA,value);
+	//increment counter
 	value++; 
 	etimer_set(&et, CLOCK_SECOND/2);
 	PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
